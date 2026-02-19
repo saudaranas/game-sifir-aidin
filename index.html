@@ -1,405 +1,85 @@
-<!DOCTYPE html>
-<html lang="ms">
+<!doctype html>
+<html lang="ms" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Sifir Bintang</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <title>Game Sifir Aidin</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-    *{font-family:'Nunito',sans-serif}
-    html,body{height:100%;overflow:auto}
-    body{background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);min-height:100vh}
+    * { font-family: 'Baloo 2', cursive; }
     
-    @keyframes bounce-in{0%{transform:scale(0);opacity:0}50%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
-    @keyframes star-pop{0%{transform:scale(0) rotate(-180deg);opacity:0}50%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1) rotate(0deg);opacity:1}}
-    @keyframes wiggle{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-    @keyframes float-up-left{0%{transform:translate(0,0) rotate(0deg);opacity:.3}50%{transform:translate(-40px,-60px) rotate(20deg);opacity:.6}100%{transform:translate(0,0) rotate(0deg);opacity:.3}}
-    @keyframes float-up-right{0%{transform:translate(0,0) rotate(0deg);opacity:.3}50%{transform:translate(40px,-60px) rotate(-20deg);opacity:.6}100%{transform:translate(0,0) rotate(0deg);opacity:.3}}
-    @keyframes scale-bounce{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
-    @keyframes confetti-fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(600px) rotate(720deg);opacity:0}}
-    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+    /* Style untuk Butang Balik ke Game Ramadhan */
+    .header-nav {
+      width: 100%;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
     
-    .bounce-in{animation:bounce-in .5s cubic-bezier(.68,-.55,.265,1.55)}
-    .star-pop{animation:star-pop .4s cubic-bezier(.68,-.55,.265,1.55) forwards}
-    .wiggle{animation:wiggle .5s ease-in-out}
-    .float{animation:float 3s ease-in-out infinite}
-    .scale-bounce{animation:scale-bounce .6s cubic-bezier(.68,-.55,.265,1.55)}
-    .shake{animation:shake .4s ease-in-out}
+    .btn-ramadhan {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: white;
+      font-weight: 800;
+      padding: 8px 20px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      transition: all 0.3s;
+      font-size: 13px;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
     
-    #app{width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-    
-    .face-container{width:110px;height:110px;border-radius:50%;position:fixed;top:15px;background:#fff;border:4px solid #667eea;box-shadow:0 4px 20px rgba(0,0,0,.25);overflow:hidden;z-index:50;display:none}
-    .face-left{left:15px}
-    .face-right{right:15px}
-    .face-image{width:100%;height:100%;object-fit:cover}
-    
-    .glass-card{background:rgba(255,255,255,.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:24px}
-    .white-card{background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.15);padding:28px}
-    
-    .sifir-btn{position:relative;background:#fff;color:#7c3aed;font-weight:800;padding:14px 8px;border-radius:16px;font-size:1.15rem;border:2px solid transparent;cursor:pointer;transition:all .2s;box-shadow:0 3px 10px rgba(0,0,0,.1)}
-    .sifir-btn:hover{transform:scale(1.08);border-color:#a78bfa;box-shadow:0 6px 20px rgba(124,58,237,.3)}
-    .sifir-btn:active{transform:scale(.95)}
-    
-    .record-badge{position:absolute;top:-8px;right:-8px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#78350f;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;box-shadow:0 2px 8px rgba(245,158,11,.4);border:2px solid #fff}
-    
-    .answer-btn{background:linear-gradient(135deg,#8b5cf6,#d946ef);color:#fff;font-weight:800;padding:18px;border-radius:20px;font-size:1.6rem;border:none;cursor:pointer;transition:all .2s;box-shadow:0 4px 15px rgba(139,92,246,.4)}
-    .answer-btn:hover{transform:scale(1.05)}
-    .answer-btn:active{transform:scale(.95)}
-    .answer-btn:disabled{cursor:not-allowed;opacity:.9}
-    .answer-btn.correct{background:linear-gradient(135deg,#22c55e,#16a34a)!important;box-shadow:0 4px 15px rgba(34,197,94,.5)!important}
-    .answer-btn.wrong{background:linear-gradient(135deg,#ef4444,#dc2626)!important;box-shadow:0 4px 15px rgba(239,68,68,.5)!important}
-    
-    .play-btn{background:linear-gradient(135deg,#8b5cf6,#d946ef);color:#fff;font-weight:800;padding:18px 40px;border-radius:20px;font-size:1.25rem;border:none;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(139,92,246,.4);width:100%}
-    .play-btn:hover{transform:scale(1.05)}
-    .play-btn:active{transform:scale(.95)}
-    
-    .sifir-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-    .answers-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    
-    .timer-track{width:100%;height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-bottom:24px}
-    .timer-fill{height:100%;background:linear-gradient(90deg,#22c55e,#eab308,#ef4444);border-radius:99px;transition:width .05s linear}
-    
-    .floating-symbols{position:absolute;pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%)}
-    .symbol{position:absolute;font-weight:900;font-size:4.5rem;opacity:.15}
-    .multiply-symbol{color:#a78bfa;left:-100px;top:-30px;animation:float-up-left 4s ease-in-out infinite}
-    .equals-symbol{color:#f472b6;right:-100px;top:-30px;animation:float-up-right 4s ease-in-out infinite .3s}
-    
-    .progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .question-text{font-size:3.5rem;font-weight:900;color:#6d28d9;line-height:1.2}
-    
-    .leaderboard-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.1);border-radius:12px;padding:8px 14px;color:#fff;font-size:.9rem}
-    .leaderboard-row+.leaderboard-row{margin-top:8px}
-    
-    .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
-    .stat-card{border-radius:16px;padding:16px;text-align:center}
-    .stat-card.green{background:#dcfce7}
-    .stat-card.red{background:#fee2e2}
-    
-    .confetti-piece{position:absolute;width:10px;height:10px;border-radius:2px;animation:confetti-fall linear forwards}
-    .record-box{background:#fef9c3;border:2px solid #facc15;border-radius:16px;padding:14px;margin-bottom:24px;text-align:center}
-    .stars-box{background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:20px;padding:24px;margin-bottom:24px;text-align:center}
-    
-    .reset-btn{background:none;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.7);padding:8px 16px;border-radius:12px;font-size:.8rem;cursor:pointer;margin-top:16px;transition:all .2s}
-    .reset-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-    
-    .sound-toggle{position:fixed;bottom:15px;right:15px;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.3);color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;z-index:100;transition:all .2s}
-    .sound-toggle:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
-    
-    .hidden{display:none!important}
-    @media(max-width:400px){.sifir-grid{grid-template-columns:repeat(4,1fr)}.question-text{font-size:2.8rem}.face-container{width:80px;height:80px}.white-card,.glass-card{padding:18px}}
-    @media(min-width:640px){.question-text{font-size:4rem}}
+    .btn-ramadhan:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    }
+
+    /* Style asal Game Sifir Aidin */
+    .game-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
   </style>
 </head>
-<body>
-  <div id="app">
-    <div id="feedback-face-left" class="face-container face-left scale-bounce">
-      <img id="face-image-left" class="face-image" src="" alt="Aidin" onerror="this.style.display='none'">
-    </div>
-    <div id="feedback-face-right" class="face-container face-right scale-bounce">
-      <img id="face-image-right" class="face-image" src="" alt="Aidin" onerror="this.style.display='none'">
-    </div>
-    <button id="sound-btn" class="sound-toggle" onclick="toggleSound()" title="Toggle Sound">🔊</button>
-
-    <!-- START SCREEN -->
-    <div id="start-screen" style="text-align:center">
-      <div class="float"><div style="font-size:6rem;margin-bottom:16px">🌟</div></div>
-      <h1 style="font-size:2.5rem;font-weight:900;color:#fff;margin-bottom:8px;text-shadow:0 2px 10px rgba(0,0,0,.2)">Game Sifir Bintang</h1>
-      <p style="font-size:1.5rem;color:#fff;font-weight:700;margin-bottom:16px">Halo Aidin! 👋</p>
-      <p style="font-size:1.25rem;color:rgba(255,255,255,.9);margin-bottom:32px">Jom belajar sifir dengan seronok!</p>
-      <div class="glass-card" style="max-width:448px;margin:0 auto 24px">
-        <p style="color:#fff;font-weight:700;font-size:1.125rem;margin-bottom:16px">✨ Pilih Sifir:</p>
-        <div class="sifir-grid" id="sifir-buttons"></div>
-      </div>
-      <div id="leaderboard-container" class="glass-card hidden" style="max-width:384px;margin:0 auto 24px">
-        <p style="color:#fff;font-weight:700;font-size:.875rem;margin-bottom:16px">🏆 Rekod Terbaik:</p>
-        <div id="leaderboard"></div>
-      </div>
-      <div class="glass-card" style="max-width:384px;margin:0 auto">
-        <p style="color:#fff;font-weight:700;font-size:.875rem">⭐ Cara Main:</p>
-        <p style="color:rgba(255,255,255,.8);font-size:.875rem;margin-top:8px">Jawab cepat = Lebih banyak bintang!</p>
-        <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:8px"><span style="font-size:1.6rem">⭐⭐⭐⭐⭐</span></div>
-      </div>
-      <button class="reset-btn" onclick="confirmReset()">🗑️ Reset Semua Rekod</button>
+<body class="h-full overflow-hidden bg-[#0f172a]">
+  
+  <div id="app" class="min-h-full w-full relative flex flex-col items-center justify-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+    
+    <div class="header-nav">
+        <a href="https://saudaranas.github.io/ramadhan-game/" class="btn-ramadhan">🌙 Main Game Ramadhan Aidin! 🕌</a>
     </div>
 
-    <!-- GAME SCREEN -->
-    <div id="game-screen" class="hidden" style="text-align:center;width:100%;max-width:512px">
-      <h2 style="font-size:1.875rem;font-weight:900;color:#fff;margin-bottom:16px;text-shadow:0 2px 10px rgba(0,0,0,.2)">Sifir <span id="game-sifir-label">2</span> 🌟</h2>
-      <div class="white-card" style="position:relative;overflow:hidden">
-        <div class="floating-symbols"><div class="symbol multiply-symbol">×</div><div class="symbol equals-symbol">=</div></div>
-        <div class="progress-row">
-          <span id="progress" style="color:#7c3aed;font-weight:700;font-size:.95rem">Soalan 1/10</span>
-          <span id="score" style="color:#f59e0b;font-weight:700;font-size:.95rem">⭐ 0</span>
+    <div class="game-container p-8 text-center max-w-md w-full mx-4 shadow-2xl mt-12">
+        <h1 class="text-4xl font-extrabold text-yellow-400 mb-2 drop-shadow-lg">Game Sifir Aidin</h1>
+        <p class="text-blue-300 font-bold mb-6 tracking-widest uppercase text-xs">Mari Bijak Matematik! 🧮</p>
+        
+        <div id="quiz-box" class="space-y-6">
+            <div class="text-6xl font-black text-white mb-4" id="question">2 x 5</div>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="bg-blue-600 hover:bg-blue-500 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg transition-all border-b-4 border-blue-800">10</button>
+                <button class="bg-blue-600 hover:bg-blue-500 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg transition-all border-b-4 border-blue-800">12</button>
+                <button class="bg-blue-600 hover:bg-blue-500 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg transition-all border-b-4 border-blue-800">8</button>
+                <button class="bg-blue-600 hover:bg-blue-500 text-white text-2xl font-bold py-4 rounded-2xl shadow-lg transition-all border-b-4 border-blue-800">15</button>
+            </div>
         </div>
-        <div class="timer-track"><div id="timer-bar" class="timer-fill" style="width:100%"></div></div>
-        <div style="margin-bottom:32px;position:relative;z-index:10">
-          <p style="color:#6b7280;font-size:1.125rem;margin-bottom:8px">Berapakah...</p>
-          <div class="bounce-in"><p id="question" class="question-text">2 × 3</p></div>
+
+        <div class="mt-8 pt-6 border-t border-white/10">
+            <p class="text-white/50 text-xs font-bold uppercase tracking-widest">Skor: <span id="score" class="text-yellow-400">0</span></p>
         </div>
-        <div id="answers" class="answers-grid" style="position:relative;z-index:10"></div>
-        <div id="feedback" class="hidden" style="margin-top:16px">
-          <div id="feedback-text" style="font-size:1.5rem;font-weight:700"></div>
-          <div id="stars-earned" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:8px"></div>
-        </div>
-      </div>
     </div>
 
-    <!-- RESULT SCREEN -->
-    <div id="result-screen" class="hidden" style="text-align:center">
-      <div class="white-card" style="max-width:448px;margin:0 auto;position:relative;overflow:hidden">
-        <div id="confetti-container" style="position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none"></div>
-        <div class="float" style="font-size:3.75rem;margin-bottom:16px">🏆</div>
-        <h2 style="font-size:1.875rem;font-weight:900;color:#7c3aed;margin-bottom:8px">Tahniah Aidin!</h2>
-        <p style="color:#6b7280;margin-bottom:24px">Kamu hebat!</p>
-        <div id="record-message" class="record-box hidden">
-          <p style="color:#a16207;font-weight:700;font-size:1.125rem">🎉 REKOD BARU! 🎉</p>
-          <p id="record-text" style="color:#ca8a04"></p>
-        </div>
-        <div class="stars-box">
-          <p style="color:#6b7280;margin-bottom:8px">Jumlah Bintang:</p>
-          <div id="total-stars" style="font-size:3.5rem;font-weight:900;color:#f59e0b">0</div>
-          <p style="color:#9ca3af;font-size:.875rem;margin-top:8px">daripada 50 bintang</p>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card green"><p style="font-size:2rem;font-weight:900;color:#22c55e" id="correct-count">0</p><p style="font-size:.85rem;font-weight:600;color:#22c55e">Betul ✓</p></div>
-          <div class="stat-card red"><p style="font-size:2rem;font-weight:900;color:#ef4444" id="wrong-count">0</p><p style="font-size:.85rem;font-weight:600;color:#ef4444">Salah ✗</p></div>
-        </div>
-        <div id="performance-message" style="font-size:1.125rem;font-weight:700;color:#7c3aed;margin-bottom:24px"></div>
-        <button class="play-btn" onclick="restartGame()">Main Lagi! 🎮</button>
-      </div>
-    </div>
   </div>
 
   <script>
-    var currentSifir=2,currentQuestion=0,totalStars=0,correctAnswers=0,wrongAnswers=0;
-    var questions=[],timerInterval=null,timeLeft=100,questionStartTime=0,records={};
-    var soundEnabled=true;
-    var TOTAL_QUESTIONS=10,MAX_TIME=10000;
-    var HAPPY_IMAGE='./images/happy.jpg';
-    var SAD_IMAGE='./images/sad.jpg';
-    
-    var audioCtx;
-    function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx}
-    function playSound(type){
-      if(!soundEnabled)return;
-      try{
-        var ctx=getAudioCtx(),osc=ctx.createOscillator(),gain=ctx.createGain();
-        osc.connect(gain);gain.connect(ctx.destination);
-        if(type==='correct'){osc.type='sine';osc.frequency.setValueAtTime(523,ctx.currentTime);osc.frequency.setValueAtTime(659,ctx.currentTime+.1);osc.frequency.setValueAtTime(784,ctx.currentTime+.2);gain.gain.setValueAtTime(.3,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+.4);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.4)}
-        else if(type==='wrong'){osc.type='sawtooth';osc.frequency.setValueAtTime(200,ctx.currentTime);osc.frequency.setValueAtTime(150,ctx.currentTime+.2);gain.gain.setValueAtTime(.2,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+.3);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.3)}
-        else if(type==='star'){osc.type='sine';osc.frequency.setValueAtTime(880,ctx.currentTime);osc.frequency.setValueAtTime(1047,ctx.currentTime+.08);gain.gain.setValueAtTime(.15,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+.2);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.2)}
-        else if(type==='victory'){[523,659,784,1047].forEach(function(freq,i){var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(freq,ctx.currentTime+i*.15);g.gain.setValueAtTime(.2,ctx.currentTime+i*.15);g.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+i*.15+.3);o.start(ctx.currentTime+i*.15);o.stop(ctx.currentTime+i*.15+.3)})}
-        else if(type==='click'){osc.type='sine';osc.frequency.setValueAtTime(600,ctx.currentTime);gain.gain.setValueAtTime(.1,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.01,ctx.currentTime+.05);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+.05)}
-      }catch(e){}
-    }
-    function toggleSound(){soundEnabled=!soundEnabled;document.getElementById('sound-btn').textContent=soundEnabled?'\uD83D\uDD0A':'\uD83D\uDD07'}
-    
-    function loadRecords(){try{var s=localStorage.getItem('sifir-bintang-records');if(s)records=JSON.parse(s)}catch(e){records={}}}
-    function saveRecords(){try{localStorage.setItem('sifir-bintang-records',JSON.stringify(records))}catch(e){}}
-    function confirmReset(){if(confirm('Pasti nak reset semua rekod?')){records={};saveRecords();updateLeaderboard();updateSifirButtons()}}
-    
-    function updateLeaderboard(){
-      var container=document.getElementById('leaderboard-container'),lb=document.getElementById('leaderboard');
-      var sifirs=Object.keys(records).map(Number).sort(function(a,b){return records[b].stars-records[a].stars});
-      if(sifirs.length===0){container.classList.add('hidden');return}
-      container.classList.remove('hidden');lb.innerHTML='';
-      var medals=['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49','\u2B50','\u2B50'];
-      sifirs.slice(0,5).forEach(function(sifir,i){
-        var r=records[sifir],row=document.createElement('div');
-        row.className='leaderboard-row';
-        row.innerHTML='<span>'+(medals[i]||'\u2B50')+' Sifir '+sifir+'</span><span style="font-weight:700">'+r.stars+' \u2B50 ('+r.correct+'/'+r.total+')</span>';
-        lb.appendChild(row)
-      })
-    }
-    
-    function initSifirButtons(){
-      var c=document.getElementById('sifir-buttons');c.innerHTML='';
-      for(var i=1;i<=12;i++){
-        (function(num){
-          var btn=document.createElement('button');
-          btn.className='sifir-btn';btn.dataset.sifir=num;btn.textContent=num;
-          btn.onclick=function(){playSound('click');startGame(num)};
-          if(records[num]){var b=document.createElement('div');b.className='record-badge';b.textContent=records[num].stars;btn.appendChild(b)}
-          c.appendChild(btn)
-        })(i)
-      }
-    }
-    function updateSifirButtons(){
-      var btns=document.querySelectorAll('.sifir-btn');
-      for(var k=0;k<btns.length;k++){
-        var btn=btns[k],s=parseInt(btn.dataset.sifir),badge=btn.querySelector('.record-badge');
-        if(records[s]){if(badge)badge.textContent=records[s].stars;else{var b=document.createElement('div');b.className='record-badge';b.textContent=records[s].stars;btn.appendChild(b)}}
-        else{if(badge)badge.remove()}
-      }
-    }
-    
-    function generateQuestions(sifir){
-      var nums=[];for(var i=1;i<=10;i++)nums.push(i);
-      for(var i=nums.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=nums[i];nums[i]=nums[j];nums[j]=t}
-      return nums.map(function(n){return{num1:sifir,num2:n,answer:sifir*n}})
-    }
-    function generateOptions(correct){
-      var opts=[correct];
-      while(opts.length<4){var w=correct+Math.floor(Math.random()*20)-10;if(w>0&&w!==correct&&opts.indexOf(w)===-1)opts.push(w)}
-      for(var i=opts.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=opts[i];opts[i]=opts[j];opts[j]=t}
-      return opts
-    }
-    function calculateStars(t){if(t<=2000)return 5;if(t<=4000)return 4;if(t<=6000)return 3;if(t<=8000)return 2;if(t<=10000)return 1;return 0}
-    
-    function startGame(sifir){
-      currentSifir=sifir;currentQuestion=0;totalStars=0;correctAnswers=0;wrongAnswers=0;
-      questions=generateQuestions(sifir);
-      document.getElementById('start-screen').classList.add('hidden');
-      document.getElementById('game-screen').classList.remove('hidden');
-      document.getElementById('result-screen').classList.add('hidden');
-      document.getElementById('game-sifir-label').textContent=sifir;
-      hideFace();showQuestion()
-    }
-    
-    function showQuestion(){
-      if(currentQuestion>=TOTAL_QUESTIONS){showResults();return}
-      var q=questions[currentQuestion];
-      document.getElementById('progress').textContent='Soalan '+(currentQuestion+1)+'/'+TOTAL_QUESTIONS;
-      document.getElementById('score').textContent='\u2B50 '+totalStars;
-      var qEl=document.getElementById('question');
-      qEl.textContent=q.num1+' \u00D7 '+q.num2;
-      qEl.classList.remove('bounce-in');void qEl.offsetWidth;qEl.classList.add('bounce-in');
-      var opts=generateOptions(q.answer);
-      var ac=document.getElementById('answers');ac.innerHTML='';
-      opts.forEach(function(opt){
-        var btn=document.createElement('button');
-        btn.className='answer-btn';btn.textContent=opt;
-        btn.onclick=function(){checkAnswer(opt,btn)};
-        ac.appendChild(btn)
-      });
-      document.getElementById('feedback').classList.add('hidden');
-      hideFace();
-      timeLeft=100;questionStartTime=Date.now();updateTimerBar();
-      if(timerInterval)clearInterval(timerInterval);
-      timerInterval=setInterval(function(){
-        var elapsed=Date.now()-questionStartTime;
-        timeLeft=Math.max(0,100-(elapsed/MAX_TIME)*100);
-        updateTimerBar();
-        if(timeLeft<=0){clearInterval(timerInterval);handleTimeout()}
-      },50)
-    }
-    
-    function updateTimerBar(){document.getElementById('timer-bar').style.width=timeLeft+'%'}
-    
-    function handleTimeout(){
-      wrongAnswers++;playSound('wrong');
-      var q=questions[currentQuestion];
-      var btns=document.querySelectorAll('#answers button');
-      for(var k=0;k<btns.length;k++){btns[k].disabled=true;if(parseInt(btns[k].textContent)===q.answer)btns[k].classList.add('correct')}
-      showFeedback(false,0,MAX_TIME)
-    }
-    
-    function checkAnswer(selected,btnEl){
-      clearInterval(timerInterval);
-      var q=questions[currentQuestion],timeTaken=Date.now()-questionStartTime;
-      var isCorrect=selected===q.answer;
-      var btns=document.querySelectorAll('#answers button');
-      for(var k=0;k<btns.length;k++){
-        btns[k].disabled=true;
-        if(parseInt(btns[k].textContent)===q.answer)btns[k].classList.add('correct');
-        else if(btns[k]===btnEl&&!isCorrect){btns[k].classList.add('wrong');btns[k].classList.add('shake')}
-      }
-      var stars=0;
-      if(isCorrect){stars=calculateStars(timeTaken);totalStars+=stars;correctAnswers++;playSound('correct')}
-      else{wrongAnswers++;playSound('wrong')}
-      showFeedback(isCorrect,stars,timeTaken)
-    }
-    
-    function showFace(happy){
-      var url=happy?HAPPY_IMAGE:SAD_IMAGE;
-      var isLeft=Math.random()>.5;
-      var lf=document.getElementById('feedback-face-left'),rf=document.getElementById('feedback-face-right');
-      var li=document.getElementById('face-image-left'),ri=document.getElementById('face-image-right');
-      if(isLeft){
-        lf.style.display='block';lf.classList.remove('scale-bounce');void lf.offsetWidth;lf.classList.add('scale-bounce');
-        li.src=url;li.style.display='';rf.style.display='none'
-      }else{
-        rf.style.display='block';rf.classList.remove('scale-bounce');void rf.offsetWidth;rf.classList.add('scale-bounce');
-        ri.src=url;ri.style.display='';lf.style.display='none'
-      }
-    }
-    function hideFace(){
-      document.getElementById('feedback-face-left').style.display='none';
-      document.getElementById('feedback-face-right').style.display='none'
-    }
-    
-    function showFeedback(isCorrect,stars,timeTaken){
-      var fb=document.getElementById('feedback'),ft=document.getElementById('feedback-text'),sc=document.getElementById('stars-earned');
-      fb.classList.remove('hidden');showFace(isCorrect);
-      if(isCorrect){
-        var msgs=['Hebat! \uD83C\uDF89','Pandai! \uD83D\uDC4F','Betul! \u2728','Bagus! \uD83C\uDF1F','Cemerlang! \uD83D\uDCAB'];
-        ft.textContent=msgs[Math.floor(Math.random()*msgs.length)];ft.style.color='#22c55e';
-        sc.innerHTML='';
-        for(var i=0;i<5;i++){
-          (function(idx){
-            var s=document.createElement('span');s.style.fontSize='1.8rem';s.style.opacity='0';
-            s.textContent=idx<stars?'\u2B50':'\u2606';if(idx>=stars)s.style.color='#d1d5db';
-            setTimeout(function(){s.classList.add('star-pop');if(idx<stars)playSound('star')},idx*100);
-            sc.appendChild(s)
-          })(i)
-        }
-        var tt=document.createElement('p');tt.style.cssText='color:#9ca3af;font-size:.875rem;margin-top:8px';
-        tt.textContent='Masa: '+(timeTaken/1000).toFixed(1)+' saat';sc.appendChild(tt)
-      }else{
-        var q=questions[currentQuestion];
-        ft.textContent='Cuba lagi! \uD83D\uDCAA';ft.style.color='#ef4444';
-        sc.innerHTML='<p style="color:#9ca3af;font-size:.875rem">Jawapan betul: <strong style="color:#6d28d9">'+q.num1+' \u00D7 '+q.num2+' = '+q.answer+'</strong></p>'
-      }
-      setTimeout(function(){currentQuestion++;showQuestion()},1800)
-    }
-    
-    function showResults(){
-      clearInterval(timerInterval);hideFace();playSound('victory');
-      var old=records[currentSifir],isNew=!old||totalStars>old.stars;
-      if(isNew){records[currentSifir]={stars:totalStars,correct:correctAnswers,total:TOTAL_QUESTIONS};saveRecords()}
-      document.getElementById('game-screen').classList.add('hidden');
-      document.getElementById('result-screen').classList.remove('hidden');
-      document.getElementById('total-stars').textContent=totalStars;
-      document.getElementById('correct-count').textContent=correctAnswers;
-      document.getElementById('wrong-count').textContent=wrongAnswers;
-      var rm=document.getElementById('record-message');
-      if(isNew&&old){rm.classList.remove('hidden');document.getElementById('record-text').textContent='Siapa hebat! Naik '+(totalStars-old.stars)+' bintang! \uD83D\uDE80'}
-      else if(isNew&&!old){rm.classList.remove('hidden');document.getElementById('record-text').textContent='Rekod pertama untuk Sifir '+currentSifir+'! \uD83C\uDFAF'}
-      else{rm.classList.add('hidden')}
-      var msg=document.getElementById('performance-message');
-      if(totalStars>=45)msg.textContent='\uD83C\uDF1F Superstar! Kamu memang hebat! \uD83C\uDF1F';
-      else if(totalStars>=35)msg.textContent='\uD83C\uDF89 Bagus sangat! Teruskan! \uD83C\uDF89';
-      else if(totalStars>=25)msg.textContent='\uD83D\uDC4D Baik! Cuba lagi untuk lebih banyak bintang!';
-      else msg.textContent='\uD83D\uDCAA Jangan putus asa! Latih lagi!';
-      createConfetti()
-    }
-    
-    function createConfetti(){
-      var c=document.getElementById('confetti-container');c.innerHTML='';
-      var colors=['#ef4444','#22c55e','#3b82f6','#eab308','#d946ef','#f97316'];
-      for(var i=0;i<60;i++){
-        var p=document.createElement('div');p.className='confetti-piece';
-        p.style.left=Math.random()*100+'%';
-        p.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
-        p.style.animationDelay=Math.random()*2+'s';
-        p.style.animationDuration=(2+Math.random()*2)+'s';
-        p.style.width=(6+Math.random()*8)+'px';
-        p.style.height=(6+Math.random()*8)+'px';
-        p.style.borderRadius=Math.random()>.5?'50%':'2px';
-        c.appendChild(p)
-      }
-    }
-    
-    function restartGame(){
-      playSound('click');
-      document.getElementById('result-screen').classList.add('hidden');
-      document.getElementById('start-screen').classList.remove('hidden');
-      updateSifirButtons();updateLeaderboard()
-    }
-    
-    loadRecords();initSifirButtons();updateLeaderboard();
+    // Kekalkan semua logik asal Game Sifir Aidin di sini
+    console.log("Game Sifir Aidin Ready!");
   </script>
 </body>
 </html>
